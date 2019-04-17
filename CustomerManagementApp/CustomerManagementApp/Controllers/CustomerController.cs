@@ -16,7 +16,7 @@ namespace CustomerManagementApp.Controllers
 
     [RoutePrefix("customer")]
     [Route("{action = Index}")]
-    [HandleError(ExceptionType = typeof(Exception), View = "NotFound")]
+   // [HandleError(ExceptionType = typeof(Exception), View = "NotFound")]
     public class CustomerController : Controller
     {
         #region Class Variables...
@@ -123,7 +123,7 @@ namespace CustomerManagementApp.Controllers
 
         // POST: Customer/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
+       [ValidateAntiForgeryToken]
         [Route("create")]
         public async Task<ActionResult> Create([Bind(Include = "CustomerID,AddressLine1,AddressLine2,AddressLine3,City,Country,EmailAddress,FirstName,MobileNumber,LandlineNumber,SurName")] CustomerModel customerModel)
         {

@@ -199,7 +199,6 @@ C:\Users\kumar.thamilarasan\source\repos\CustomerManagementApp\CustomerManagemen
 C:\Users\kumar.thamilarasan\source\repos\CustomerManagementApp\CustomerManagementApp\bin\Unity.Abstractions.pdb
 C:\Users\kumar.thamilarasan\source\repos\CustomerManagementApp\CustomerManagementApp\bin\Unity.Container.pdb
 C:\Users\kumar.thamilarasan\source\repos\CustomerManagementApp\CustomerManagementApp\bin\Unity.Mvc.pdb
-C:\Users\kumar.thamilarasan\source\repos\CustomerManagementApp\CustomerManagementApp\obj\Debug\CustomerManagementApp.csprojAssemblyReference.cache
 C:\Users\kumar.thamilarasan\source\repos\CustomerManagementApp\CustomerManagementApp\bin\PagedList.dll
 C:\Users\kumar.thamilarasan\source\repos\CustomerManagementApp\CustomerManagementApp\bin\PagedList.Mvc.dll
 C:\Users\kumar.thamilarasan\source\repos\CustomerManagementApp\CustomerManagementApp\bin\PagedList.xml
@@ -208,3 +207,4 @@ C:\Users\kumar.thamilarasan\source\repos\CustomerManagementApp\CustomerManagemen
 C:\Users\kumar.thamilarasan\source\repos\CustomerManagementApp\CustomerManagementApp\bin\System.Threading.Tasks.Extensions.dll
 C:\Users\kumar.thamilarasan\source\repos\CustomerManagementApp\CustomerManagementApp\bin\Castle.Core.xml
 C:\Users\kumar.thamilarasan\source\repos\CustomerManagementApp\CustomerManagementApp\bin\System.Threading.Tasks.Extensions.xml
+C:\Users\kumar.thamilarasan\source\repos\CustomerManagementApp\CustomerManagementApp\obj\Debug\CustomerManagementApp.csprojAssemblyReference.cache

@@ -101,7 +101,7 @@
                 <td>
                     @Html.ActionLink("Edit", "Edit", new { id = item.CustomerID }) |
                     @Html.ActionLink("Details", "Details", new { id = item.CustomerID }) |
-                    <a href="#" onclick="customer.delete(@item.CustomerID)"> Delete </a>
+                    <a href="#" onclick="customerViewModel.delete(@item.CustomerID)"> Delete </a>
                 </td>
             </tr>
         }
@@ -113,3 +113,9 @@
     city = Request.QueryString["selectedCity"],
     country = Request.QueryString["selectedCountry"]
 }))
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="@Url.Content("~/Scripts/Customer.js")"></script>
+}
