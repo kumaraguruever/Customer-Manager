@@ -5,14 +5,14 @@
 var customerViewModel = (function(){
     var self = this;
     self.CustomerID = ko.observable("0");
-    self.FirstName = ko.observable('Test');
-    self.SurName = ko.observable('Test Surname');
+    self.FirstName = ko.observable("");
+    self.SurName = ko.observable("");
     self.EmailAddress = ko.observable("");
     self.AddressLine1 = ko.observable("");
     self.AddressLine2 = ko.observable("");
     self.AddressLine3 = ko.observable("");
     self.City = ko.observable("");
-    self.Country = ko.observable("India");
+    self.Country = ko.observable("");
     self.MobileNumber = ko.observable("");
     self.LandlineNumber = ko.observable("");
 
