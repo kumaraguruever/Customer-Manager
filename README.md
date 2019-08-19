@@ -21,6 +21,7 @@ Tools used
 - MS Unit test & Moq Framework
 - Entity Framework v6.2
 - SQL Server 2017
+- Azure Table Storage
                     
                     
 Technical Capabilities
