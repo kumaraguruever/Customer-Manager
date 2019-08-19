@@ -1,5 +1,6 @@
 ﻿using CustomerManagementApp.Controllers;
 using CustomerManagementApp.Models;
+using CustomerManagementApp.Models.API;
 using CustomerManagementApp.Repository;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -18,15 +19,15 @@ namespace CustomerManagementApp.Tests.Controllers
     public class CustomerControllerTest
     {
         private Mock<IServiceRepository> __ServiceRepositoryMock = new Mock<IServiceRepository>();
-        private List<CustomerModel> __Customers = new List<CustomerModel>();
+        private List<Customer> __Customers = new List<Customer>();
         private HttpResponseMessage __HttpGetResponseMessage = new HttpResponseMessage();
         private HttpResponseMessage __HttpPostResponseMessage = new HttpResponseMessage();
         private CustomerController __CustomerController;
 
-        private static CustomerModel CreateCustomer(int customerID, string firstName, string surName,
+        private static Customer CreateCustomer(int customerID, string firstName, string surName,
             string city, string country, string emailAddress)
         {
-            return new CustomerModel()
+            return new Customer()
             {
                 CustomerID = customerID,
                 FirstName = firstName,
@@ -64,15 +65,15 @@ namespace CustomerManagementApp.Tests.Controllers
         [TestMethod]
         public async Task CustomerController_Details_ShouldReturnDetailsView()
         {
-            CustomerModel _Customer = CreateCustomer(1, "Mark", "Smith", "Birmingham", "United Kingdom", "Mark.Smith@gmail.com");
+            Customer _Customer = CreateCustomer(1, "Mark", "Smith", "Birmingham", "United Kingdom", "Mark.Smith@gmail.com");
             SetupHttpGetResponseMessage(HttpStatusCode.OK, _Customer);
             SetupServiceRepositoryGetResponseMock();
             __CustomerController = new CustomerController(__ServiceRepositoryMock.Object);
 
-            ViewResult _Result = await __CustomerController.Details(1) as ViewResult;
+            ViewResult _Result = await __CustomerController.Details("Enterprise","1") as ViewResult;
 
             Assert.IsNotNull(_Result);
-            CustomerModel _ResultCustomerModel = _Result.Model as CustomerModel;
+            Customer _ResultCustomerModel = _Result.Model as Customer;
             Assert.IsNotNull(_ResultCustomerModel);
             Assert.AreEqual(_Customer.CustomerID, _ResultCustomerModel.CustomerID);
         }
@@ -80,12 +81,12 @@ namespace CustomerManagementApp.Tests.Controllers
         [TestMethod]
         public async Task CustomerController_Details_ShouldReturnBadRequestWhenIdIsNull()
         {
-            CustomerModel _Customer = CreateCustomer(1, "Mark", "Smith", "Birmingham", "United Kingdom", "Mark.Smith@gmail.com");
+            Customer _Customer = CreateCustomer(1, "Mark", "Smith", "Birmingham", "United Kingdom", "Mark.Smith@gmail.com");
             SetupHttpGetResponseMessage(HttpStatusCode.OK, _Customer);
             SetupServiceRepositoryGetResponseMock();
             __CustomerController = new CustomerController(__ServiceRepositoryMock.Object);
 
-            HttpStatusCodeResult _Result = await __CustomerController.Details(null) as HttpStatusCodeResult;
+            HttpStatusCodeResult _Result = await __CustomerController.Details(string.Empty, string.Empty) as HttpStatusCodeResult;
 
             Assert.AreEqual((int)HttpStatusCode.BadRequest, _Result.StatusCode);
         }
@@ -98,7 +99,7 @@ namespace CustomerManagementApp.Tests.Controllers
             SetupServiceRepositoryGetResponseMock();
             __CustomerController = new CustomerController(__ServiceRepositoryMock.Object);
 
-            HttpNotFoundResult _Result = await __CustomerController.Details(5) as HttpNotFoundResult;
+            HttpNotFoundResult _Result = await __CustomerController.Details("Enterprise", "1") as HttpNotFoundResult;
 
             Assert.AreEqual((int)HttpStatusCode.NotFound, _Result.StatusCode);
         }
@@ -129,7 +130,7 @@ namespace CustomerManagementApp.Tests.Controllers
             __Customers.Add(CreateCustomer(1, "Mark", "Smith", "Birmingham", "United Kingdom", _DuplicateEmailAddress));
             SetupHttpGetResponseMessage(HttpStatusCode.OK, __Customers);
             SetupServiceRepositoryGetResponseMock();
-            CustomerModel _NewCustomer = CreateCustomer(2, "Rob", "Key", "New York", "United States of America", _DuplicateEmailAddress);
+            Customer _NewCustomer = CreateCustomer(2, "Rob", "Key", "New York", "United States of America", _DuplicateEmailAddress);
             SetupHttpPostResponseMessage(HttpStatusCode.OK, _NewCustomer);
             SetupServiceRepositoryPostResponseMock();
             __CustomerController = new CustomerController(__ServiceRepositoryMock.Object);
@@ -138,7 +139,7 @@ namespace CustomerManagementApp.Tests.Controllers
 
             Assert.IsNotNull(_Result);
             Assert.IsTrue(_Result.ViewData.ModelState.Any(state => state.Value.Errors.First().ErrorMessage == "Email Address is already exists"));
-            CustomerModel _ResultCustomerModel = _Result.Model as CustomerModel;
+            Customer _ResultCustomerModel = _Result.Model as Customer;
             Assert.IsNotNull(_ResultCustomerModel);
         }
 
@@ -148,7 +149,7 @@ namespace CustomerManagementApp.Tests.Controllers
             __Customers.Add(CreateCustomer(1, "Mark", "Smith", "Birmingham", "United Kingdom", "Mark.Smith@gmail.com"));
             SetupHttpGetResponseMessage(HttpStatusCode.OK, __Customers);
             SetupServiceRepositoryGetResponseMock();
-            CustomerModel _NewCustomer = CreateCustomer(2, "Rob", "Key", "New York", "United States of America", "Rob.Key@yahoo.com");
+            Customer _NewCustomer = CreateCustomer(2, "Rob", "Key", "New York", "United States of America", "Rob.Key@yahoo.com");
             SetupHttpPostResponseMessage(HttpStatusCode.OK, _NewCustomer);
             SetupServiceRepositoryPostResponseMock();
             __CustomerController = new CustomerController(__ServiceRepositoryMock.Object);

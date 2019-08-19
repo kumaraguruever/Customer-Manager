@@ -1,9 +1,11 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 
 namespace CustomerManagementApp.Repository
 {
     public interface IServiceRepository
     {
+        Uri BaseAddress { get; set; }
         HttpClient Client { get;}
 
         HttpResponseMessage DeleteResponse(string url);

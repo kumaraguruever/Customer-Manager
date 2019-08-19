@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <parameter name="CustomerDBContext-Web.config Connection String" description="CustomerDBContext Connection String used in web.config by the application to access the database." defaultValue="Data source =(LocalDb)\MSSQLLocalDB;Initial Catalog=CustomerDB;Integrated Security=SSPI;AttachDBFilename=|DataDirectory|\Customers.mdf;pooling=false;" tags="SqlConnectionString">
+    <parameterEntry kind="XmlFile" scope="C:\\Users\\kumar\.thamilarasan\\source\\repos\\Customer-Manager\\CustomerManagementApp\\CustomerManagementApp\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='CustomerDBContext']/@connectionString" />
+  </parameter>
+  <parameter name="CustomerDBContext_DatabasePublish-Web.config Connection String" description="CustomerDBContext_DatabasePublish Connection String used in web.config by the application to access the database." defaultValue="CustomerDBContext_DatabasePublish.ConnetionString" tags="SqlConnectionString">
+    <parameterEntry kind="XmlFile" scope="C:\\Users\\kumar\.thamilarasan\\source\\repos\\Customer-Manager\\CustomerManagementApp\\CustomerManagementApp\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='CustomerDBContext_DatabasePublish']/@connectionString" />
+  </parameter>
+</parameters>

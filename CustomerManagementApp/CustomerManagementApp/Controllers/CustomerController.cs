@@ -1,4 +1,5 @@
 ﻿using CustomerManagementApp.Models;
+using CustomerManagementApp.Models.API;
 using CustomerManagementApp.Repository;
 using CustomerManagementApp.Utilities;
 using PagedList;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
 
 namespace CustomerManagementApp.Controllers
@@ -16,7 +18,7 @@ namespace CustomerManagementApp.Controllers
 
     [RoutePrefix("customer")]
     [Route("{action = Index}")]
-   // [HandleError(ExceptionType = typeof(Exception), View = "NotFound")]
+    [HandleError(ExceptionType = typeof(Exception), View = "Error")]
     public class CustomerController : Controller
     {
         #region Class Variables...
@@ -25,79 +27,71 @@ namespace CustomerManagementApp.Controllers
 
         #region Constants...
         private const string GET_ALL_CUSTOMER_URL = "api/Customer";
-        private const string GET_CUSTOMER_URL = "api/Customer/{0}";
+        private const string GET_CUSTOMER_URL = "api/Customer?{0}";
         private const string POST_CUSTOMER_URL = "api/Customer";
+        private const string SEARCH_CUSTOMER_URL = "api/customer/search?{0}";
+
         private const int TOTAL_NO_OF_PAGES = 3;
 
         #endregion
         public CustomerController(IServiceRepository serviceRepository)
         {
-            __ServiceRepository = serviceRepository ?? new ServiceRepository(new System.Net.Http.HttpClient());
+            __ServiceRepository = serviceRepository ?? new ServiceRepository();        
         }
-        private CustomerDBContext db = new CustomerDBContext();
+      
+        private Uri RepositoryBaseAddress => new Uri(Request.Url.GetLeftPart(UriPartial.Authority));
 
+        private void PopulateServiceRepositoryBaseAddress()
+        {
+            __ServiceRepository.BaseAddress = RepositoryBaseAddress;
+        }
         [Route]
         public async Task<ActionResult> Index(string selectedSurname, string selectedCity, string selectedCountry, int? pageNumber)
         {
-         
-            List < CustomerModel > _Customers = await FilterCustomers(selectedSurname, selectedCity, selectedCountry);
+            List <Customer> _Customers = await FilterCustomers(selectedSurname, selectedCity, selectedCountry);
             _Customers = _Customers.OrderBy(customer => customer.FirstName)
                             .ThenBy(customer => customer.City)
                             .ThenBy(customer => customer.Country).ToList();
             return View(_Customers.ToPagedList(pageNumber ?? 1, TOTAL_NO_OF_PAGES));
         }
 
-        private async Task<List<CustomerModel>> FilterCustomers(string selectedSurname, string selectedCity, string selectedCountry)
+        private async Task<List<Customer>> FilterCustomers(string selectedSurname, string selectedCity, string selectedCountry)
         {
-            List<CustomerModel> _FilteredCustomers = await GetAllCustomers();
-            if (!string.IsNullOrEmpty(selectedSurname))
-            {
-                _FilteredCustomers = _FilteredCustomers
-                                    .Where(customer => customer.SurName.ToLower().StartsWith(selectedSurname.ToLower()))
-                                    .ToList();
-            }
+            PopulateServiceRepositoryBaseAddress();
+            selectedCountry = !string.IsNullOrWhiteSpace(selectedCountry) && selectedCountry.ToLower() == "all" ? string.Empty : selectedCountry;
+            string _QueryStrings = $"surname={selectedSurname}&city={selectedCity}&country={selectedCountry}";
+            string _URL = string.Format(SEARCH_CUSTOMER_URL, _QueryStrings);
 
-            if (!string.IsNullOrEmpty(selectedCity))
-            {
-                _FilteredCustomers = _FilteredCustomers
-                                    .Where(customer => customer.City.ToLower().StartsWith(selectedCity.ToLower()))
+            HttpResponseMessage _HttpResponseMessage = __ServiceRepository.GetResponse(_URL);
+            return  await _HttpResponseMessage.Content.ReadAsAsync<List<Customer>>();
+         }
 
-                                    .ToList();
-            }
-            if (!string.IsNullOrEmpty(selectedCountry) && selectedCountry != DataHelper.ALL_VALUE)
-            {
-                _FilteredCustomers = _FilteredCustomers
-                                 .Where(customer => customer.Country.ToLower() == selectedCountry.ToLower())
-                                 .ToList();
-            }
-
-            return _FilteredCustomers;
-        }
-
-        private async Task<List<CustomerModel>> GetAllCustomers()
+        private async Task<List<Customer>> GetAllCustomers()
         {
+            PopulateServiceRepositoryBaseAddress();
             HttpResponseMessage _HttpResponseMessage = __ServiceRepository.GetResponse(GET_ALL_CUSTOMER_URL);
-            List<CustomerModel> _Customers = await _HttpResponseMessage.Content.ReadAsAsync<List<CustomerModel>>();
+            List<Customer> _Customers = await _HttpResponseMessage.Content.ReadAsAsync<List<Customer>>();
             return _Customers;
         }
 
-        public bool IsEmailExist(string emailAddress, int? ID)
+        public bool IsEmailExist(string emailAddress, string partitionKey, string rowKey)
         {
-            List<CustomerModel> _Customers = GetAllCustomers().Result;
+            List<Customer> _Customers = GetAllCustomers().Result;
 
-            return _Customers.Any(customer => customer.EmailAddress == emailAddress
-                                    && customer.CustomerID != ID);
+            return _Customers.Any(customer => customer.EmailAddress.ToLower().Trim() == emailAddress.ToLower().Trim()
+                                    && (customer.RowKey != rowKey));
         }
 
         // /Customer/5
-        [Route("{id:int:min(1)}")]
-        public async Task<ActionResult> Details(int? id)
+        [HttpGet]
+        [Route("{rowKey:minlength(1)}")]
+        public async Task<ActionResult> Details(string partitionKey, string rowKey)
         {
-            if (id == null)
+            if (string.IsNullOrWhiteSpace(partitionKey) && string.IsNullOrWhiteSpace(rowKey))
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            CustomerModel customerModel = await GetCustomer(id);
+            Customer customerModel = await GetCustomer(partitionKey, rowKey);
 
             if (customerModel == null)
             {
@@ -106,13 +100,15 @@ namespace CustomerManagementApp.Controllers
             return View(customerModel);
         }
 
-        private async Task<CustomerModel> GetCustomer(int? id)
+        private async Task<Customer> GetCustomer(string partitionKey, string rowKey)
         {
-            string _URL = string.Format(GET_CUSTOMER_URL, id);
-            CustomerModel customerModel = await __ServiceRepository.GetResponse(_URL).Content.ReadAsAsync<CustomerModel>();
+            string _URL = string.Format(GET_CUSTOMER_URL, GetIdentityQueryStrings(partitionKey, rowKey));
+            Customer customerModel = await __ServiceRepository.GetResponse(_URL).Content.ReadAsAsync<Customer>();
             return customerModel;
         }
 
+        private static string GetIdentityQueryStrings(string partitionKey, string rowKey) =>  $"partitionKey={partitionKey}&rowKey={rowKey}";
+      
         // GET: Customer/Create
         [HttpGet]
         [Route("create")]
@@ -125,11 +121,12 @@ namespace CustomerManagementApp.Controllers
         [HttpPost]
        [ValidateAntiForgeryToken]
         [Route("create")]
-        public async Task<ActionResult> Create([Bind(Include = "CustomerID,AddressLine1,AddressLine2,AddressLine3,City,Country,EmailAddress,FirstName,MobileNumber,LandlineNumber,SurName")] CustomerModel customerModel)
+        public async Task<ActionResult> Create([Bind(Include = "PartitionKey,RowKey,AddressLine1,AddressLine2,AddressLine3,City,Country,EmailAddress,FirstName,MobileNumber,LandlineNumber,SurName")] Customer customerModel)
         {
             ValidateUniqueEmailAddress(customerModel);
             if (ModelState.IsValid)
             {
+              //  PopulateServiceRepositoryBaseAddress();
                 await __ServiceRepository.PostResponse(POST_CUSTOMER_URL, customerModel).Content.ReadAsAsync<CustomerModel>();
                 return RedirectToAction("Index");
             }
@@ -137,16 +134,16 @@ namespace CustomerManagementApp.Controllers
             return View(customerModel);
         }
 
-        // GET: Customer/edit/5
+        // GET: Customer/edit?partitionKey=a&rowKey=1
         [HttpGet]
-        [Route("edit/{id:int:min(1)}")]
-        public async Task<ActionResult> Edit(int? id)
+        [Route("edit/{rowKey:minlength(1)}")]
+        public async Task<ActionResult> Edit(string partitionKey, string rowKey)
         {
-            if (id == null)
+            if (string.IsNullOrWhiteSpace(partitionKey) && string.IsNullOrWhiteSpace(rowKey))
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            CustomerModel customerModel = await GetCustomer(id);
+            Customer customerModel = await GetCustomer(partitionKey, rowKey);
 
             if (customerModel == null)
             {
@@ -155,42 +152,43 @@ namespace CustomerManagementApp.Controllers
             return View(customerModel);
         }
 
-        // POST: Customer/edit/5
+        // POST: Customer/edit?partitionKey=a&rowKey=1
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Route("edit/{id:int:min(1)}")]
-        public async Task<ActionResult> Edit([Bind(Include = "CustomerID,AddressLine1,AddressLine2,AddressLine3,City,Country,EmailAddress,FirstName,MobileNumber,LandlineNumber,SurName")] CustomerModel customerModel)
+        [Route("edit/{rowKey:minlength(1)}")]
+        public async Task<ActionResult> Edit([Bind(Include = "PartitionKey,RowKey,AddressLine1,AddressLine2,AddressLine3,City,Country,EmailAddress,FirstName,MobileNumber,LandlineNumber,SurName")] Customer customerModel)
         {
             ValidateUniqueEmailAddress(customerModel);
 
             if (ModelState.IsValid)
             {
-                string _URL = string.Format(GET_CUSTOMER_URL, customerModel.CustomerID);
-                CustomerModel _CustomerModel = await __ServiceRepository.PutResponse(_URL, customerModel).Content.ReadAsAsync<CustomerModel>();
+              //  PopulateServiceRepositoryBaseAddress();
+                string _URL = string.Format(GET_CUSTOMER_URL, GetIdentityQueryStrings(customerModel.PartitionKey, customerModel.RowKey));
+                Customer _CustomerModel = await __ServiceRepository.PutResponse(_URL, customerModel).Content.ReadAsAsync<Customer>();
 
                 return RedirectToAction("Index");
             }
             return View(customerModel);
         }
 
-        private void ValidateUniqueEmailAddress(CustomerModel customerModel)
+        private void ValidateUniqueEmailAddress(Customer customerModel)
         {
-            if (IsEmailExist(customerModel.EmailAddress, customerModel.CustomerID))
+            if (IsEmailExist(customerModel.EmailAddress, customerModel.PartitionKey, customerModel.RowKey))
             {
                 ModelState.AddModelError("EmailAddress", "Email Address is already exists");
             }
         }
 
-        // GET: Customer/Delete/5
+        // GET: Customer/Delete?partitionKey=a&rowKey=1
         [HttpGet]
-        [Route("delete/{id}")]
-        public async Task<ActionResult> Delete(int? id)
+        [Route("delete/{rowKey:minlength(1)}")]
+        public async Task<ActionResult> Delete(string partitionKey, string rowKey)
         {
-            if (id == null)
+            if (string.IsNullOrWhiteSpace(partitionKey) && string.IsNullOrWhiteSpace(rowKey))
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            CustomerModel customerModel = await GetCustomer(id);
+            Customer customerModel = await GetCustomer(partitionKey, rowKey);
             if (customerModel == null)
             {
                 return HttpNotFound();
@@ -198,23 +196,24 @@ namespace CustomerManagementApp.Controllers
             return View(customerModel);
         }
 
-        // POST: Customer/Delete/5
-        [HttpPost]
-        [Route("delete/{id}")]
-        public async Task<ActionResult> DeleteConfirmed(int id)
+        // POST: Customer/Delete?partitionKey=a&rowKey=1
+        [HttpDelete]
+        [Route("delete")]
+        public async Task<ActionResult> DeleteConfirmed(string partitionKey, string rowKey)
         {
-            string _URL = string.Format(GET_CUSTOMER_URL, id);
+            string _URL = string.Format(GET_CUSTOMER_URL, GetIdentityQueryStrings(partitionKey, rowKey));
+
             await __ServiceRepository.DeleteResponse(_URL).Content.ReadAsAsync<CustomerModel>();
             return RedirectToAction("Index");
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
+            //if (disposing)
+            //{
+            //    db.Dispose();
+            //}
+            //base.Dispose(disposing);
         }
     }
 }

@@ -55,14 +55,19 @@ var customerViewModel = (function(){
         $('#selectedCountry').val('');
     };
 
-    var deleteCustomer = function (ID) {
+    var deleteCustomer = function (partitionKey, rowKey) {
         var result = confirm("Are you sure you want to delete this customer?");
         if (result) {
+            var parameters = {
+                partitionKey: partitionKey,
+                rowKey: rowKey
+            };
             $.ajax({
-                url: "/customer/delete/" + ID,
-                type: "POST",
-                contentType: "application/json;charset=UTF-8",
+                url: "/customer/delete",
+                type: "DELETE",
                 dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(parameters),
                 success: function (result) {
                     location.reload();
                 },

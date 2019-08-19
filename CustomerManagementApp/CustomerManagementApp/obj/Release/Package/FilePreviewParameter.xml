@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <parameter name="IIS Web Application Name" description="" value="CustomerManager" tags="IisApp">
+    <parameterEntry kind="ProviderPath" scope="IisApp" match="^C:\\Users\\kumar\.thamilarasan\\source\\repos\\Customer-Manager\\CustomerManagementApp\\CustomerManagementApp\\obj\\Release\\Package\\PackageTmp$" />
+    <parameterEntry kind="ProviderPath" scope="setAcl" match="^C:\\Users\\kumar\.thamilarasan\\source\\repos\\Customer-Manager\\CustomerManagementApp\\CustomerManagementApp\\obj\\Release\\Package\\PackageTmp$" />
+  </parameter>
+  <parameter name="CustomerDBContext-Web.config Connection String" description="" value="Server=tcp:demoappsqlserver.database.windows.net,1433;Initial Catalog=DemoAppDB;Persist Security Info=False;User ID=kumardemoapp;Password=goodluck19$;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30" tags="">
+    <parameterEntry kind="XmlFile" scope="C:\\Users\\kumar\.thamilarasan\\source\\repos\\Customer-Manager\\CustomerManagementApp\\CustomerManagementApp\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='CustomerDBContext']/@connectionString" />
+  </parameter>
+</parameters>

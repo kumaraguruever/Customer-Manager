@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.SqlClient;
 
 namespace CustomerManagementApp.Models
 {
@@ -34,7 +35,7 @@ namespace CustomerManagementApp.Models
             }
             protected override void Seed(CustomerDBContext context)
             {
-
+                SqlConnection.ClearAllPools();
                 IList<CustomerModel> _Customers = new List<CustomerModel>();
                 _Customers.Add(CreateCustomer("David", "Hyland", "david.hyland@gmail.com", "42 Smith Rock Road",
                     "Greenway", string.Empty, "Cape Town", "South Africa", "123-44-7774", "974-4738-52"));

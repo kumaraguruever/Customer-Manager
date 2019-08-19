@@ -6,11 +6,22 @@ namespace CustomerManagementApp.Repository
 {
     public class ServiceRepository : IServiceRepository
     {
-        public HttpClient Client { get;}
-        public ServiceRepository(HttpClient httpClient)
+        private static readonly HttpClient __HttpClient = new HttpClient();
+
+        public HttpClient Client 
         {
-            Client = httpClient ?? new HttpClient();
-            Client.BaseAddress = new Uri(ConfigurationManager.AppSettings["ServiceUrl"].ToString());
+            get
+            {
+                if (__HttpClient.BaseAddress == null)
+                {
+                    __HttpClient.BaseAddress = BaseAddress; 
+                }
+                return __HttpClient;
+            }
+        }
+        public Uri BaseAddress { get; set; }
+        public ServiceRepository()
+        {
         }
         public HttpResponseMessage GetResponse(string url)
         {

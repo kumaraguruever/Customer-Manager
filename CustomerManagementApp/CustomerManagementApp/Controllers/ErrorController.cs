@@ -6,11 +6,13 @@ namespace CustomerManagementApp.Controllers
     {
         public ActionResult Index()
         {
+            ViewBag["ErrorMessage"] = HttpContext.Error.Message;
             return View();
         }
 
         public ActionResult NotFound()
         {
+            ViewBag["ErrorMessage"] = HttpContext.Error.Message;
             return View();
         }
     }

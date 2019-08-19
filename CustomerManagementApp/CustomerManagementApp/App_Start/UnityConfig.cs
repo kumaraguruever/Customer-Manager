@@ -2,6 +2,8 @@ using CustomerManagementApp.Repository;
 using System;
 
 using Unity;
+using Wolnik.Azure.TableStorage.Repository;
+
 
 namespace CustomerManagementApp
 {
@@ -38,6 +40,8 @@ namespace CustomerManagementApp
         public static void RegisterTypes(IUnityContainer container)
         {
             container.RegisterType<IServiceRepository, ServiceRepository>();
+            container.RegisterType<IAzureTableStorage, AzureTableStorage>();
+
         }
     }
 }

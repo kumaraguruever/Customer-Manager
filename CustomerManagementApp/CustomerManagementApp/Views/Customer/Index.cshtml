@@ -1,6 +1,6 @@
 ﻿@using PagedList;
 @using PagedList.Mvc;
-@model IPagedList<CustomerManagementApp.Models.CustomerModel>
+@model IPagedList<CustomerManagementApp.Models.API.Customer>
 
 @using CustomerManagementApp.Utilities
 @{
@@ -99,9 +99,9 @@
                     @Html.DisplayFor(model => item.Country)
                 </td>
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.CustomerID }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.CustomerID }) |
-                    <a href="#" onclick="customerViewModel.delete(@item.CustomerID)"> Delete </a>
+                    @Html.ActionLink("Edit", "Edit", new { rowKey = item.RowKey, partitionKey = item.PartitionKey }) |
+                    @Html.ActionLink("Details", "Details", new { rowKey = item.RowKey, partitionKey = item.PartitionKey }) |
+                    <a href="#" onclick="customerViewModel.delete('@item.PartitionKey', '@item.RowKey')"> Delete </a>
                 </td>
             </tr>
         }
