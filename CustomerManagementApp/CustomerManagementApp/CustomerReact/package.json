@@ -1,0 +1,39 @@
+{
+  "name": "customerreacttest",
+  "version": "1.0.0",
+  "description": "Customer Manager",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --config=config/webpack.config.js",
+    "dev": "webpack --mode development --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "kumar",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.1.0",
+    "@babel/core": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
+    "@types/react": "^16.9.2",
+    "@types/react-dom": "^16.9.0",
+    "@types/react-router": "^5.0.5",
+    "@types/react-router-dom": "^4.3.5",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^8.0.2",
+    "css-loader": "^1.0.0",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-hot-loader": "^4.12.12",
+    "react-router": "^5.0.1",
+    "react-router-dom": "^5.0.1",
+    "source-map-loader": "^0.2.4",
+    "style-loader": "^0.23.0",
+    "typescript": "^3.6.3",
+    "webpack": "^4.19.1",
+    "webpack-cli": "^3.1.1",
+    "webpack-dev-server": "^3.8.0",
+    "webpack-merge": "^4.2.2"
+  },
+  "dependencies": {}
+}

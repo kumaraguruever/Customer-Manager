@@ -6,7 +6,8 @@ namespace CustomerManagementApp.Controllers
     {
         public ActionResult Index()
         {
-            return RedirectToAction("Index", "Customer");
+            //return RedirectToAction("Index", "Customer");
+            return View("");
         }
     }
 }
